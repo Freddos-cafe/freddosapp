@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freddo’s - Pago</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- PWA manifest and meta tags -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#624b2d">
+    <link rel="apple-touch-icon" href="assets/logo.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+    <script defer src="app.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <img src="assets/logo.png" alt="Freddo’s Logo" class="logo">
+            <nav>
+                <a href="index.html" data-i18n="nav_home">Inicio</a>
+                <a href="menu.html" data-i18n="nav_menu">Menú</a>
+                <a href="coffee_club.html" data-i18n="nav_club">Coffee Club</a>
+                <a href="profile.html" data-i18n="nav_profile">Perfil</a>
+                <select id="languageSelect" aria-label="Cambiar idioma">
+                    <option value="es">ES</option>
+                    <option value="en">EN</option>
+                </select>
+            </nav>
+        </div>
+    </header>
+    <main>
+        <h1 data-i18n="checkout_title">Pagar</h1>
+        <div id="checkoutSummary" class="checkout-summary"></div>
+        <form id="checkoutForm" class="checkout-form">
+            <h2 data-i18n="checkout_contact_title">Tus datos</h2>
+            <label for="name" data-i18n="checkout_name_label">Nombre</label>
+            <input type="text" id="name" name="name" required>
+            <label for="phone" data-i18n="checkout_phone_label">Teléfono</label>
+            <input type="tel" id="phone" name="phone" required>
+            <label for="email" data-i18n="checkout_email_label">Correo electrónico</label>
+            <input type="email" id="email" name="email" required>
+            <label for="pickupTime" data-i18n="checkout_pickup_label">Hora de recogida</label>
+            <input type="datetime-local" id="pickupTime" name="pickupTime" required>
+            <button type="submit" class="btn-primary" data-i18n="button_pay_now">Pagar ahora</button>
+        </form>
+    </main>
+    <footer>
+        <p>&copy; 2025 Freddo’s Coffee Costa del Sol SL</p>
+    </footer>
+
+    <!-- Service worker registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => {
+                    console.error('SW registration failed:', err);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
