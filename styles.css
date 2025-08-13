@@ -53,12 +53,8 @@ nav select {
     border-radius: 4px;
 }
 
-/*
- * Reduce the logo height for better fit on mobile screens. By lowering
- * the fixed height here, the header no longer pushes the navigation
- * items down when viewed on an iPhone. Adjust the value as needed.
- */
 .logo {
+    /* Reduce logo height for mobile devices to prevent shifting the header */
     height: 30px;
 }
 
@@ -320,17 +316,112 @@ footer {
     top: 0;
     left: 0;
     height: 100%;
-    /* Keep the base colour of the bar so the width indicator remains visible */
+    background-color: var(--color-accent);
+}
+.club-benefits {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-bottom: 1rem;
+}
+.club-benefits li {
+    margin-bottom: 0.5rem;
+}
+
+/* --------------------------------------------------------------------- */
+/* New UI enhancements for Freddo’s Coffee Club and navigation             */
+/*                                                                        */
+/* Back arrow styling: provides a clear tap target to return to the       */
+/* previous page on secondary screens. The colour transitions on hover    */
+/* help indicate interactivity without overwhelming the design.           */
+.back-arrow {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+    color: var(--color-dark);
+    text-decoration: none;
+    align-self: center;
+}
+.back-arrow:hover {
+    color: var(--color-accent);
+}
+
+/* Coffee Club hero image: occupies full width of its container with a    */
+/* subtle border radius. A margin below separates it from the content.    */
+.club-hero {
+    margin-bottom: 1rem;
+}
+.club-hero img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+}
+
+/* Join section: a call‑to‑action encouraging users to become members.    */
+/* It uses a soft border and rounded corners, and pulses gently to draw   */
+/* attention. On hover, the card grows slightly and gains a shadow.       */
+.club-join {
+    /* Redesigned to be more eye‑catching: stacked layout with dark background, */
+    /* golden border and a pulsing effect that invites users to join.          */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-dark);
+    border: 2px solid var(--color-accent);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: pulse-btn 2.5s infinite;
+}
+.club-join:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.join-text {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    text-align: center;
+}
+.join-image {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    margin-top: 0.5rem;
+    border-radius: 8px;
+}
+@keyframes pulse-btn {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+/* Progress bar shimmer: overlay a moving gradient across the progress    */
+/* bar to give a sense of motion and progress. The animation is subtle    */
+/* so as not to distract from the content.                                */
+.progress-container {
+    position: relative;
+    height: 16px;
+    background-color: var(--color-background);
+    border: 1px solid var(--color-accent);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+.progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
     background-color: var(--color-accent);
     overflow: hidden;
 }
-
-/*
- * Add a shimmering effect to the progress bar. The ::after pseudo-element
- * creates a moving gradient that sweeps across the bar, giving a subtle
- * glimmer without distracting from the information. The animation runs
- * indefinitely to keep the bar lively.
- */
 .progress-bar::after {
     content: '';
     position: absolute;
@@ -342,7 +433,6 @@ footer {
     animation: progress-shimmer 2s linear infinite;
     transform: translateX(-100%);
 }
-
 @keyframes progress-shimmer {
     0% {
         transform: translateX(-100%);
@@ -351,14 +441,32 @@ footer {
         transform: translateX(100%);
     }
 }
-.club-benefits {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+
+/* Footer image styling: centres an image in the footer and constrains its */
+/* width on smaller screens.                                              */
+.footer-image img {
+    max-width: 300px;
+    width: 80%;
+    height: auto;
+    margin: 1rem auto;
+    display: block;
+}
+
+/* Cancel subscription button spacing */
+.cancel-subscription {
     margin-bottom: 1rem;
 }
+
+/* Centre align club content and refine benefit list appearance */
+.club-content {
+    text-align: center;
+}
 .club-benefits li {
-    margin-bottom: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed var(--color-background);
+}
+.club-benefits li:last-child {
+    border-bottom: none;
 }
 
 /* Profile page styles */

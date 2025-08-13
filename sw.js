@@ -4,7 +4,9 @@
 // below. On fetch it serves from cache if available, otherwise
 // falls back to the network.
 
-const CACHE_NAME = 'freddos-cache-v1';
+// Bump the cache version when releasing a new version of the app.  This
+// forces the service worker to recache updated HTML, CSS, JS and assets.
+const CACHE_NAME = 'freddos-cache-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -25,6 +27,8 @@ const ASSETS_TO_CACHE = [
   './assets/category-bebidas.png',
   './assets/category-snacks.png',
   './assets/category-extras.png'
+  , './assets/club_original.png'
+  , './assets/join_design.png'
 ];
 
 self.addEventListener('install', event => {

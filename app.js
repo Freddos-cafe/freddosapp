@@ -84,6 +84,7 @@ const translations = {
         nav_menu: 'Menú',
         nav_club: 'Coffee Club',
         nav_profile: 'Perfil',
+        nav_cart: 'Carrito',
         hero_welcome: 'Bienvenido a Freddo’s',
         hero_intro: 'Disfruta de nuestros cafés, frappés y snacks. Selecciona una categoría para empezar tu pedido.',
         button_start_order: 'Pedir ahora',
@@ -113,13 +114,12 @@ const translations = {
         club_status_member: '¡Eres miembro!',
         club_status_non_member: 'No eres miembro todavía',
         club_benefits_title: 'Beneficios del Club',
-        // Eliminado: el beneficio de "precios sin aumento de 1€" se ha
-        // retirado del listado público. La lógica de precios con recargo
-        // sigue activa en computeItemPrice pero ya no se muestra como
-        // beneficio visible.
+        // El beneficio de precios sin recargo de 1€ se retira del listado
+        // público; los precios siguen aplicándose automáticamente.
         club_benefit_beverage: '1 bebida gratis al mes',
         club_benefit_upgrades: '2 upgrades al mes (leche vegetal, siropes)',
         club_benefit_rewards: '10 cafés = 1 gratis',
+        club_join_text: 'Únete a',
         club_level: 'Nivel',
         club_xp: 'Puntos XP',
         profile_title: 'Perfil',
@@ -147,6 +147,7 @@ const translations = {
         nav_menu: 'Menu',
         nav_club: 'Coffee Club',
         nav_profile: 'Profile',
+        nav_cart: 'Cart',
         hero_welcome: 'Welcome to Freddo’s',
         hero_intro: 'Enjoy our coffees, frappes and snacks. Select a category to start your order.',
         button_start_order: 'Order now',
@@ -177,11 +178,11 @@ const translations = {
         club_status_non_member: 'You are not a member yet',
         club_benefits_title: 'Club benefits',
         // Removed: the "prices without €1 increase" benefit is no longer
-        // displayed to customers. Pricing logic still applies in
-        // computeItemPrice but is not advertised as a perk.
+        // displayed; price logic still applies automatically.
         club_benefit_beverage: '1 free drink per month',
         club_benefit_upgrades: '2 upgrades per month (plant milk, syrups)',
         club_benefit_rewards: '10 coffees = 1 free',
+        club_join_text: 'Join',
         club_level: 'Level',
         club_xp: 'XP points',
         profile_title: 'Profile',
@@ -248,6 +249,13 @@ function translatePage() {
             input.setAttribute('placeholder', translation);
         }
     });
+
+    // Refresh dynamic content on certain pages after language change. For example,
+    // the Coffee Club page has text generated in JavaScript (join text, benefits)
+    // that needs to be rebuilt to reflect the new language selection.
+    if (window.location.pathname.endsWith('coffee_club.html')) {
+        loadClub();
+    }
 }
 
 /* Membership operations */
@@ -648,18 +656,39 @@ function loadClub() {
     statusP.className = 'club-status';
     statusP.textContent = membership.active ? translations[lang].club_status_member : translations[lang].club_status_non_member;
     container.appendChild(statusP);
-    const button = document.createElement('button');
-    button.className = 'btn-primary';
-    button.textContent = membership.active ? translations[lang].club_unsubscribe : translations[lang].club_subscribe;
-    button.addEventListener('click', toggleMembership);
-    container.appendChild(button);
+    // Create subscribe/unsubscribe control. When the user is not a member,
+    // display a custom join container with text and an image. When the
+    // user is a member, display a simple cancel button.
+    if (membership.active) {
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'btn-primary cancel-subscription';
+        cancelBtn.textContent = translations[lang].club_unsubscribe;
+        cancelBtn.addEventListener('click', toggleMembership);
+        container.appendChild(cancelBtn);
+    } else {
+        const joinDiv = document.createElement('div');
+        joinDiv.className = 'club-join';
+        const joinText = document.createElement('span');
+        joinText.className = 'join-text';
+        joinText.textContent = `${translations[lang].club_join_text}:`;
+        const joinImg = document.createElement('img');
+        joinImg.className = 'join-image';
+        joinImg.src = 'assets/join_design.png';
+        joinImg.alt = translations[lang].club_join_text;
+        joinDiv.appendChild(joinText);
+        joinDiv.appendChild(joinImg);
+        // Clicking anywhere on the join container toggles membership on
+        joinDiv.addEventListener('click', toggleMembership);
+        container.appendChild(joinDiv);
+    }
     // Show membership details if active
     const benefitsTitle = document.createElement('h3');
     benefitsTitle.textContent = translations[lang].club_benefits_title;
     const benefitsList = document.createElement('ul');
     benefitsList.className = 'club-benefits';
-    // Do not include the removed price benefit key. Only list the
-    // publicly visible benefits: free beverage, upgrades and rewards.
+    // List only the benefits we want to display publicly. The price benefit
+    // (club_benefit_prices) has been removed from this list but the price
+    // difference still applies automatically in the pricing logic.
     const benefitItems = ['club_benefit_beverage', 'club_benefit_upgrades', 'club_benefit_rewards'];
     for (const b of benefitItems) {
         const li = document.createElement('li');

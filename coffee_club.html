@@ -17,11 +17,13 @@
 <body>
     <header>
         <div class="container">
+            <a href="javascript:history.back()" class="back-arrow">&larr;</a>
             <img src="assets/logo.png" alt="Freddo’s Logo" class="logo">
             <nav>
                 <a href="index.html" data-i18n="nav_home">Inicio</a>
                 <a href="menu.html" data-i18n="nav_menu">Menú</a>
                 <a href="coffee_club.html" data-i18n="nav_club" class="active">Coffee Club</a>
+                <a href="cart.html" data-i18n="nav_cart">Carrito</a>
                 <a href="profile.html" data-i18n="nav_profile">Perfil</a>
                 <select id="languageSelect" aria-label="Cambiar idioma">
                     <option value="es">ES</option>
@@ -31,6 +33,9 @@
         </div>
     </header>
     <main>
+        <div class="club-hero">
+            <img src="assets/club_original.png" alt="Freddo’s Coffee Club" class="club-hero-img">
+        </div>
         <h1 data-i18n="club_title">Freddo’s Coffee Club</h1>
         <div id="clubContent" class="club-content"></div>
     </main>
