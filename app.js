@@ -141,6 +141,9 @@ const translations = {
         profile_not_member: 'No eres miembro del Club aún',
         profile_member_since: 'Miembro desde',
         free_text: 'Gratis'
+        , profile_progress_title: 'Progreso del Club'
+        , profile_next_level: 'Próximo nivel'
+        , profile_achievements_title: 'Logros y beneficios'
     },
     en: {
         nav_home: 'Home',
@@ -204,6 +207,9 @@ const translations = {
         profile_not_member: 'You are not yet a Club member',
         profile_member_since: 'Member since',
         free_text: 'Free'
+        , profile_progress_title: 'Club progress'
+        , profile_next_level: 'Next level'
+        , profile_achievements_title: 'Achievements and benefits'
     }
 };
 
@@ -741,6 +747,7 @@ function loadProfile() {
     const membership = getMembership();
     const ordersCount = membership.orders || 0;
     container.innerHTML = '';
+    // List with basic details: membership status, orders count and language
     const list = document.createElement('ul');
     const liMembership = document.createElement('li');
     liMembership.textContent = `${translations[lang].profile_membership}: ${membership.active ? translations[lang].club_status_member : translations[lang].profile_not_member}`;
@@ -752,6 +759,66 @@ function loadProfile() {
     list.appendChild(liOrders);
     list.appendChild(liLanguage);
     container.appendChild(list);
+
+    // If the user is a member, show their level, XP and progress bar
+    if (membership.active) {
+        // Determine current and next level for progress
+        const currentLvl = membershipSettings.levels.find(l => l.nameKey === membership.level);
+        let nextLvl = membershipSettings.levels[membershipSettings.levels.length - 1];
+        for (const lvl of membershipSettings.levels) {
+            if (lvl.minXp > currentLvl.minXp) {
+                nextLvl = lvl;
+                break;
+            }
+        }
+        const range = nextLvl.maxXp - currentLvl.minXp;
+        const value = membership.xp - currentLvl.minXp;
+        let percent = range === Infinity ? 1 : value / range;
+        if (percent < 0.02) percent = 0.02;
+        if (percent > 1) percent = 1;
+
+        // Title
+        const levelTitle = document.createElement('h3');
+        levelTitle.textContent = `${translations[lang].profile_progress_title}`;
+        container.appendChild(levelTitle);
+
+        // Level and XP info
+        const progressInfo = document.createElement('p');
+        progressInfo.textContent = `${translations[lang].club_level}: ${translations[lang][membership.level]}  |  ${translations[lang].club_xp}: ${membership.xp}`;
+        container.appendChild(progressInfo);
+
+        // Progress bar
+        const progContainer = document.createElement('div');
+        progContainer.className = 'progress-container';
+        const progBar = document.createElement('div');
+        progBar.className = 'progress-bar';
+        progBar.style.width = `${percent * 100}%`;
+        progContainer.appendChild(progBar);
+        container.appendChild(progContainer);
+
+        // Next level info
+        if (range !== Infinity) {
+            const xpLeft = nextLvl.minXp - membership.xp;
+            const nextLevelP = document.createElement('p');
+            nextLevelP.textContent = `${translations[lang].profile_next_level}: ${translations[lang][nextLvl.nameKey]} (XP: ${membership.xp}/${nextLvl.minXp})`;
+            container.appendChild(nextLevelP);
+        }
+
+        // Achievements list: benefits unlocked and upcoming rewards
+        const achievementsTitle = document.createElement('h3');
+        achievementsTitle.textContent = translations[lang].profile_achievements_title;
+        container.appendChild(achievementsTitle);
+        const achievementsList = document.createElement('ul');
+        achievementsList.className = 'achievements-list';
+        // Always show current benefits (same as club benefits)
+        const benefitIds = ['club_benefit_beverage', 'club_benefit_upgrades', 'club_benefit_rewards'];
+        for (const b of benefitIds) {
+            const li = document.createElement('li');
+            li.textContent = translations[lang][b];
+            achievementsList.appendChild(li);
+        }
+        container.appendChild(achievementsList);
+    }
 }
 
 /* Common initialization */
