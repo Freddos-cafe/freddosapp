@@ -357,6 +357,126 @@ footer {
     display: block;
 }
 
+/* Hero overlay for the Coffee Club: sits on top of the hero image and
+   displays the call‑to‑action to join the club. It uses a dark semi
+   transparent background and centres its content. */
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none; /* Initially hidden; shown via JS when needed */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.55);
+    border-radius: 8px;
+    text-align: center;
+    padding: 1rem;
+    box-sizing: border-box;
+    z-index: 1;
+}
+.hero-overlay .overlay-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    margin-bottom: 0.5rem;
+}
+.hero-overlay .join-image {
+    width: 70%;
+    max-width: 300px;
+    height: auto;
+    border-radius: 8px;
+    margin: 0.5rem 0;
+}
+.hero-overlay .join-price {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    margin-top: 0.5rem;
+}
+.hero-overlay .join-button {
+    background-color: var(--color-accent);
+    color: var(--color-dark);
+    padding: 0.5rem 1rem;
+    margin-top: 0.8rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.hero-overlay .join-button:hover {
+    background-color: var(--color-medium);
+    color: white;
+}
+
+/* Ensure the hero container is positioned relative so the overlay
+   positions correctly within it */
+.club-hero {
+    position: relative;
+}
+
+/* Navigation enhancements: highlight the active page with a border
+   under the link and an accent colour. Provide a subtle underline on
+   hover for better affordance. */
+nav a.active {
+    color: var(--color-accent);
+    border-bottom: 2px solid var(--color-accent);
+}
+nav a:hover {
+    text-decoration: underline;
+}
+
+/* Payment options: style containers and buttons for Apple Pay and
+   Google Pay. They are flex items to occupy equal space within their
+   parent. */
+.payment-options {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+.btn-apple-pay,
+.btn-google-pay {
+    flex: 1 1 auto;
+    padding: 0.6rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4rem;
+}
+.btn-apple-pay {
+    background-color: #000;
+    color: #fff;
+}
+.btn-google-pay {
+    background-color: #fff;
+    color: #000;
+    border: 1px solid var(--color-dark);
+}
+
+/* Achievements list styling: display icons and text neatly aligned */
+.achievements-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+}
+.achievements-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+.achievement-icon {
+    font-size: 1.3rem;
+}
+
 /* Join section: a call‑to‑action encouraging users to become members.    */
 /* It uses a soft border and rounded corners, and pulses gently to draw   */
 /* attention. On hover, the card grows slightly and gains a shadow.       */

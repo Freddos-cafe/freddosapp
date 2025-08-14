@@ -438,26 +438,38 @@ function loadProduct() {
     const priceNon = computeItemPrice(item.id, [], false).toFixed(2);
     priceParagraph.textContent = membership.active ? `${priceMember} €` : `${priceNon} €`;
     // Extras selection
-    const extrasDiv = document.createElement('div');
-    extrasDiv.className = 'extras';
-    const extrasHeading = document.createElement('h3');
-    extrasHeading.textContent = lang === 'es' ? 'Extras' : 'Extras';
-    const extrasList = document.createElement('ul');
-    extrasList.className = 'extras-list';
-    const extrasCategory = menuData.categories.find(cat => cat.id === 'extras');
-    for (const extra of extrasCategory.items) {
-        const li = document.createElement('li');
-        const label = document.createElement('label');
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.value = extra.id;
-        label.appendChild(checkbox);
-        label.appendChild(document.createTextNode(` ${extra.name[lang]} (+${extra.price.toFixed(2)} €)`));
-        li.appendChild(label);
-        extrasList.appendChild(li);
+    // Only show extras for allowed categories (freddos, frappes, cafes). Snacks and drinks do not get extras.
+    let showExtras = false;
+    // Determine the category of the current item
+    const itemCategory = menuData.categories.find(cat => cat.items.some(i => i.id === item.id));
+    const allowedCategories = ['freddos','frappes','cafes'];
+    if (itemCategory && allowedCategories.includes(itemCategory.id)) {
+        showExtras = true;
     }
-    extrasDiv.appendChild(extrasHeading);
-    extrasDiv.appendChild(extrasList);
+    let extrasDiv = null;
+    let extrasList = null;
+    if (showExtras) {
+        extrasDiv = document.createElement('div');
+        extrasDiv.className = 'extras';
+        const extrasHeading = document.createElement('h3');
+        extrasHeading.textContent = lang === 'es' ? 'Extras' : 'Extras';
+        extrasList = document.createElement('ul');
+        extrasList.className = 'extras-list';
+        const extrasCategory = menuData.categories.find(cat => cat.id === 'extras');
+        for (const extra of extrasCategory.items) {
+            const li = document.createElement('li');
+            const label = document.createElement('label');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = extra.id;
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(` ${extra.name[lang]} (+${extra.price.toFixed(2)} €)`));
+            li.appendChild(label);
+            extrasList.appendChild(li);
+        }
+        extrasDiv.appendChild(extrasHeading);
+        extrasDiv.appendChild(extrasList);
+    }
     // Add to cart button
     const addButton = document.createElement('button');
     addButton.className = 'btn-primary';
@@ -474,7 +486,9 @@ function loadProduct() {
     container.innerHTML = '';
     container.appendChild(title);
     container.appendChild(priceParagraph);
-    container.appendChild(extrasDiv);
+    if (extrasDiv) {
+        container.appendChild(extrasDiv);
+    }
     container.appendChild(addButton);
 }
 
@@ -662,46 +676,85 @@ function loadClub() {
     statusP.className = 'club-status';
     statusP.textContent = membership.active ? translations[lang].club_status_member : translations[lang].club_status_non_member;
     container.appendChild(statusP);
-    // Create subscribe/unsubscribe control. When the user is not a member,
-    // display a custom join container with text and an image. When the
-    // user is a member, display a simple cancel button.
+    // Access the overlay element inside the hero.  If it exists, we
+    // populate it with a call‑to‑action when the user is not a member.
+    const overlay = document.getElementById('clubJoinOverlay');
+    if (overlay) {
+        // clear previous content
+        overlay.innerHTML = '';
+        if (!membership.active) {
+            overlay.style.display = 'flex';
+            // Title: join the club
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'overlay-title';
+            titleDiv.textContent = `${translations[lang].club_join_text} Freddo’s Coffee Club`;
+            overlay.appendChild(titleDiv);
+            // Image showing the club design
+            const img = document.createElement('img');
+            img.src = 'assets/join_design.png';
+            img.alt = 'Freddo’s Coffee Club';
+            img.className = 'join-image';
+            overlay.appendChild(img);
+            // Price line using the subscription price translation
+            const priceDiv = document.createElement('div');
+            priceDiv.className = 'join-price';
+            priceDiv.textContent = translations[lang].club_subscribe;
+            overlay.appendChild(priceDiv);
+            // Join button
+            const joinBtn = document.createElement('button');
+            joinBtn.className = 'join-button';
+            // Use a succinct label for the button (subscribe)
+            joinBtn.textContent = lang === 'es' ? 'Suscribirse' : 'Subscribe';
+            joinBtn.addEventListener('click', () => {
+                toggleMembership();
+                // After subscribing, reload the page content to reflect changes
+                loadClub();
+            });
+            overlay.appendChild(joinBtn);
+        } else {
+            // Hide overlay when membership is active
+            overlay.style.display = 'none';
+        }
+    }
+    // Subscription/cancellation button when user is a member.  For active
+    // members, provide a button to cancel membership within the content area.
     if (membership.active) {
         const cancelBtn = document.createElement('button');
         cancelBtn.className = 'btn-primary cancel-subscription';
         cancelBtn.textContent = translations[lang].club_unsubscribe;
-        cancelBtn.addEventListener('click', toggleMembership);
+        cancelBtn.addEventListener('click', () => {
+            toggleMembership();
+            loadClub();
+        });
         container.appendChild(cancelBtn);
-    } else {
-        const joinDiv = document.createElement('div');
-        joinDiv.className = 'club-join';
-        const joinText = document.createElement('span');
-        joinText.className = 'join-text';
-        joinText.textContent = `${translations[lang].club_join_text}:`;
-        const joinImg = document.createElement('img');
-        joinImg.className = 'join-image';
-        joinImg.src = 'assets/join_design.png';
-        joinImg.alt = translations[lang].club_join_text;
-        joinDiv.appendChild(joinText);
-        joinDiv.appendChild(joinImg);
-        // Clicking anywhere on the join container toggles membership on
-        joinDiv.addEventListener('click', toggleMembership);
-        container.appendChild(joinDiv);
     }
     // Show membership details if active
+    // Benefits list: display icons alongside the benefit descriptions.  Each
+    // benefit uses an emoji to symbolise the reward.  We avoid showing
+    // pricing benefits publicly but still apply price discounts internally.
     const benefitsTitle = document.createElement('h3');
     benefitsTitle.textContent = translations[lang].club_benefits_title;
+    container.appendChild(benefitsTitle);
     const benefitsList = document.createElement('ul');
     benefitsList.className = 'club-benefits';
-    // List only the benefits we want to display publicly. The price benefit
-    // (club_benefit_prices) has been removed from this list but the price
-    // difference still applies automatically in the pricing logic.
     const benefitItems = ['club_benefit_beverage', 'club_benefit_upgrades', 'club_benefit_rewards'];
+    const benefitIcons = {
+        club_benefit_beverage: '☕',
+        club_benefit_upgrades: '✨',
+        club_benefit_rewards: '🎁'
+    };
     for (const b of benefitItems) {
         const li = document.createElement('li');
-        li.textContent = translations[lang][b];
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'benefit-icon';
+        iconSpan.textContent = benefitIcons[b] || '';
+        const textSpan = document.createElement('span');
+        textSpan.className = 'benefit-text';
+        textSpan.textContent = translations[lang][b];
+        li.appendChild(iconSpan);
+        li.appendChild(textSpan);
         benefitsList.appendChild(li);
     }
-    container.appendChild(benefitsTitle);
     container.appendChild(benefitsList);
     // membership progress
     const membershipLevelName = translations[lang][membership.level];
