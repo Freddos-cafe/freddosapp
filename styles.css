@@ -39,6 +39,8 @@ nav a {
     text-decoration: none;
     color: var(--color-dark);
     font-weight: 700;
+    /* Smooth transition for colour and border to enhance UX */
+    transition: color 0.3s ease, border-bottom 0.3s ease;
 }
 
 nav a.active {
@@ -95,6 +97,7 @@ footer {
     text-decoration: none;
     text-align: center;
     cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 }
 .btn-primary {
     background-color: var(--color-accent);
@@ -129,6 +132,9 @@ footer {
     text-decoration: none;
     background-size: cover;
     background-position: center;
+    /* Add subtle elevation and smooth hover */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .category-card span {
     z-index: 2;
@@ -144,6 +150,12 @@ footer {
     opacity: 0.4;
 }
 
+/* Category card hover: raise slightly and increase shadow */
+.category-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
 /* Menu page styles */
 .menu-container {
     display: flex;
@@ -154,6 +166,12 @@ footer {
     background-color: var(--color-light);
     padding: 1rem;
     border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.category-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
 .category-section h2 {
     margin-top: 0;
@@ -192,6 +210,7 @@ footer {
     font-weight: 700;
     text-align: center;
     box-sizing: border-box;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 .item .btn-view {
     /* Button column: fixed width matching the price for alignment. */
@@ -204,6 +223,12 @@ footer {
     cursor: pointer;
     color: var(--color-dark);
     text-align: center;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+.item .btn-view:hover {
+    background-color: var(--color-medium);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    color: white;
 }
 .item:last-child {
     border-bottom: none;
@@ -241,6 +266,12 @@ footer {
     background-color: var(--color-light);
     padding: 1rem;
     border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.cart-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
 .cart-item {
     display: flex;
@@ -270,6 +301,12 @@ footer {
     padding: 1rem;
     border-radius: 8px;
     margin-bottom: 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.checkout-summary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
 .checkout-form {
     display: flex;
@@ -278,6 +315,12 @@ footer {
     background-color: var(--color-light);
     padding: 1rem;
     border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.checkout-form:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
 .checkout-form input {
     padding: 0.5rem;
@@ -291,6 +334,12 @@ footer {
     padding: 1rem;
     border-radius: 8px;
     margin-bottom: 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.confirmation-details:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
 
 /* Coffee Club page styles */
@@ -475,6 +524,138 @@ nav a:hover {
 }
 .achievement-icon {
     font-size: 1.3rem;
+}
+
+/* Locked achievements appear dimmed to encourage users to unlock them */
+.achievement-locked .achievement-icon,
+.achievement-locked .achievement-text {
+    opacity: 0.4;
+}
+
+.achievement-unlocked .achievement-icon,
+.achievement-unlocked .achievement-text {
+    opacity: 1;
+}
+
+/* --------------------------------------------------------------------- */
+/* Challenges section styling: mirrors the achievements list but includes   */
+/* progress bars to show how close the user is to completing each Fika     */
+/* challenge. Icons provide visual cues for each challenge type.           */
+.challenges-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+}
+.challenges-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+.challenge-icon {
+    font-size: 1.3rem;
+}
+/* Locked challenges appear dimmed; unlocked challenges use full opacity */
+.challenge-locked .challenge-icon,
+.challenge-locked .challenge-text,
+.challenge-locked .challenge-progress-container {
+    opacity: 0.4;
+}
+.challenge-unlocked .challenge-icon,
+.challenge-unlocked .challenge-text,
+.challenge-unlocked .challenge-progress-container {
+    opacity: 1;
+}
+.challenge-progress-container {
+    flex: 1 1 auto;
+    height: 8px;
+    background-color: var(--color-background);
+    border: 1px solid var(--color-accent);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-left: 0.5rem;
+    position: relative;
+}
+.challenge-progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: var(--color-accent);
+    /* subtle shimmer effect for challenge progress bars */
+    overflow: hidden;
+}
+.challenge-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+    animation: progress-shimmer 2s linear infinite;
+    transform: translateX(-100%);
+}
+
+/* Image-based icons for challenges (Fika) */
+.challenge-image {
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+/* Unlockables section styling */
+.unlockables-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+}
+.unlockables-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+.unlockable-image {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+.unlockable-locked .unlockable-image,
+.unlockable-locked .unlockable-text {
+    opacity: 0.4;
+}
+.unlockable-unlocked .unlockable-image,
+.unlockable-unlocked .unlockable-text {
+    opacity: 1;
+}
+.unlockable-text {
+    flex: 1;
+}
+
+/* Navigation buttons styled as cozy pills. Icons in nav items have margin */
+nav a {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.8rem;
+    border-radius: 8px;
+    margin-right: 0.5rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+nav a i {
+    margin-right: 0.3rem;
+}
+nav a.active {
+    background-color: var(--color-accent);
+    color: var(--color-light);
+}
+nav a:hover {
+    background-color: var(--color-accent);
+    color: var(--color-light);
 }
 
 /* Join section: a call‑to‑action encouraging users to become members.    */

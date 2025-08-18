@@ -86,7 +86,10 @@ const translations = {
         nav_profile: 'Perfil',
         nav_cart: 'Carrito',
         hero_welcome: 'Bienvenido a Freddo’s',
-        hero_intro: 'Disfruta de nuestros cafés, frappés y snacks. Selecciona una categoría para empezar tu pedido.',
+        // Actualizamos el texto de introducción para reflejar la filosofía Fika: un momento de
+        // pausa y disfrute acompañado de una bebida y un dulce. Este texto aparece en la
+        // página de inicio y anima al usuario a tomarse un descanso.
+        hero_intro: 'Tómate un descanso y disfruta de nuestros cafés, frappés y snacks. Selecciona una categoría para empezar tu pedido.',
         button_start_order: 'Pedir ahora',
         categories_title: 'Categorías',
         category_freddos: 'Freddos Frío/Ice Coffee',
@@ -144,6 +147,22 @@ const translations = {
         , profile_progress_title: 'Progreso del Club'
         , profile_next_level: 'Próximo nivel'
         , profile_achievements_title: 'Logros y beneficios'
+        , achievement_first_order: 'Primer pedido'
+        , achievement_five_orders: '5 pedidos'
+        , achievement_bronze_level: 'Nivel Bronce alcanzado'
+        , achievement_silver_level: 'Nivel Plata alcanzado'
+        , achievement_gold_level: 'Nivel Oro alcanzado'
+        , achievement_elite_level: 'Nivel Elite alcanzado'
+        , achievement_ten_orders: '10 cafés – Recompensa'
+        // Desafíos: sección de retos para fomentar el consumo
+        , profile_challenges_title: 'Desafíos'
+        , challenge_three_orders: '3 cafés'
+        , challenge_seven_orders: '7 cafés'
+        , challenge_ten_orders: '10 cafés'
+        , profile_unlockables_title: 'Desbloqueables'
+        , unlockable_secret_recipe: 'Receta secreta del Club'
+        , unlockable_vip_discount: 'Descuento VIP'
+        , unlockable_elite_badge: 'Insignia Elite'
     },
     en: {
         nav_home: 'Home',
@@ -152,7 +171,8 @@ const translations = {
         nav_profile: 'Profile',
         nav_cart: 'Cart',
         hero_welcome: 'Welcome to Freddo’s',
-        hero_intro: 'Enjoy our coffees, frappes and snacks. Select a category to start your order.',
+        // Updated hero intro: invite users to take a break and enjoy Freddo’s without referencing Fika directly
+        hero_intro: 'Take a break and enjoy our coffees, frappes and snacks. Select a category to start your order.',
         button_start_order: 'Order now',
         categories_title: 'Categories',
         category_freddos: 'Freddos Cold/Ice Coffee',
@@ -210,6 +230,22 @@ const translations = {
         , profile_progress_title: 'Club progress'
         , profile_next_level: 'Next level'
         , profile_achievements_title: 'Achievements and benefits'
+        , achievement_first_order: 'First order'
+        , achievement_five_orders: '5 orders'
+        , achievement_bronze_level: 'Bronze level reached'
+        , achievement_silver_level: 'Silver level reached'
+        , achievement_gold_level: 'Gold level reached'
+        , achievement_elite_level: 'Elite level reached'
+        , achievement_ten_orders: '10 coffees – Reward'
+        // Challenges: section of goals to encourage consumption
+        , profile_challenges_title: 'Challenges'
+        , challenge_three_orders: '3 coffees'
+        , challenge_seven_orders: '7 coffees'
+        , challenge_ten_orders: '10 coffees'
+        , profile_unlockables_title: 'Unlockables'
+        , unlockable_secret_recipe: 'Secret club recipe'
+        , unlockable_vip_discount: 'VIP discount'
+        , unlockable_elite_badge: 'Elite badge'
     }
 };
 
@@ -309,6 +345,26 @@ function toggleMembership() {
     }
 }
 
+/**
+ * Highlight the active navigation link based on the current page.
+ * Compares the basename of the current location to each nav link's href.
+ * Adds the `active` class to the matching link and removes it from others.
+ */
+function setActiveNav() {
+    const navLinks = document.querySelectorAll('nav a');
+    const currentPage = window.location.pathname.split('/').pop();
+    navLinks.forEach(link => {
+        const linkPath = link.getAttribute('href');
+        if (!linkPath) return;
+        const linkPage = linkPath.split('/').pop();
+        if (linkPage === currentPage) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+}
+
 /* Cart operations */
 function getCart() {
     const data = localStorage.getItem('cart');
@@ -351,11 +407,17 @@ function computeItemPrice(itemId, extras = [], membershipActive) {
     const item = findItemById(itemId);
     if (!item) return 0;
     let price = item.price;
-    // Add 1€ surcharge if not member
-    if (!membershipActive) {
+    // Determine the category of the current item so we can decide whether
+    // to apply the non‑member surcharge.  Extras (shots, syrups, etc.)
+    // always cost extra regardless of membership.
+    const categoryId = item.categoryId;
+    // Only apply the €1 surcharge to certain categories when the user is
+    // not a member.  Drinks and snacks are exempt from the surcharge.
+    const surchargeCategories = ['freddos', 'frappes', 'cafes'];
+    if (!membershipActive && surchargeCategories.includes(categoryId)) {
         price += 1;
     }
-    // Extras always cost
+    // Add the price of each selected extra
     for (const extraId of extras) {
         const extra = findExtraById(extraId);
         if (extra) {
@@ -738,16 +800,24 @@ function loadClub() {
     const benefitsList = document.createElement('ul');
     benefitsList.className = 'club-benefits';
     const benefitItems = ['club_benefit_beverage', 'club_benefit_upgrades', 'club_benefit_rewards'];
+    // Map each benefit to a Font Awesome icon.  These icons require
+    // the Font Awesome stylesheet which is loaded in the HTML head.  If
+    // Font Awesome fails to load, these fall back to plain emojis.
     const benefitIcons = {
-        club_benefit_beverage: '☕',
-        club_benefit_upgrades: '✨',
-        club_benefit_rewards: '🎁'
+        club_benefit_beverage: '<i class="fa-solid fa-mug-hot"></i>',
+        club_benefit_upgrades: '<i class="fa-solid fa-star"></i>',
+        club_benefit_rewards: '<i class="fa-solid fa-gift"></i>'
     };
     for (const b of benefitItems) {
         const li = document.createElement('li');
         const iconSpan = document.createElement('span');
         iconSpan.className = 'benefit-icon';
-        iconSpan.textContent = benefitIcons[b] || '';
+        // Use innerHTML for icons (Font Awesome) to allow HTML content.
+        if (benefitIcons[b]) {
+            iconSpan.innerHTML = benefitIcons[b];
+        } else {
+            iconSpan.textContent = '';
+        }
         const textSpan = document.createElement('span');
         textSpan.className = 'benefit-text';
         textSpan.textContent = translations[lang][b];
@@ -857,20 +927,168 @@ function loadProfile() {
             container.appendChild(nextLevelP);
         }
 
-        // Achievements list: benefits unlocked and upcoming rewards
+        // Achievements and benefits section: show progress like a video game.
         const achievementsTitle = document.createElement('h3');
         achievementsTitle.textContent = translations[lang].profile_achievements_title;
         container.appendChild(achievementsTitle);
         const achievementsList = document.createElement('ul');
         achievementsList.className = 'achievements-list';
-        // Always show current benefits (same as club benefits)
-        const benefitIds = ['club_benefit_beverage', 'club_benefit_upgrades', 'club_benefit_rewards'];
-        for (const b of benefitIds) {
+        // Define profile achievements with icons and conditions.  Each
+        // achievement has a translation key and an icon from Font Awesome.
+        const profileAchievements = [
+            {
+                key: 'achievement_first_order',
+                icon: '<i class="fa-solid fa-coffee"></i>',
+                unlocked: ordersCount >= 1
+            },
+            {
+                key: 'achievement_five_orders',
+                icon: '<i class="fa-solid fa-seedling"></i>',
+                unlocked: ordersCount >= 5
+            },
+            {
+                key: 'achievement_ten_orders',
+                icon: '<i class="fa-solid fa-mug-hot"></i>',
+                unlocked: ordersCount >= 10
+            },
+            {
+                key: 'achievement_bronze_level',
+                icon: '<i class="fa-solid fa-medal"></i>',
+                unlocked: membership.level === 'level_bronze' || membership.level === 'level_silver' || membership.level === 'level_gold' || membership.level === 'level_elite'
+            },
+            {
+                key: 'achievement_silver_level',
+                icon: '<i class="fa-solid fa-award"></i>',
+                unlocked: membership.level === 'level_silver' || membership.level === 'level_gold' || membership.level === 'level_elite'
+            },
+            {
+                key: 'achievement_gold_level',
+                icon: '<i class="fa-solid fa-trophy"></i>',
+                unlocked: membership.level === 'level_gold' || membership.level === 'level_elite'
+            },
+            {
+                key: 'achievement_elite_level',
+                icon: '<i class="fa-solid fa-crown"></i>',
+                unlocked: membership.level === 'level_elite'
+            }
+        ];
+        profileAchievements.forEach(achievement => {
             const li = document.createElement('li');
-            li.textContent = translations[lang][b];
+            li.className = achievement.unlocked ? 'achievement-unlocked' : 'achievement-locked';
+            // Icon
+            const iconSpan = document.createElement('span');
+            iconSpan.className = 'achievement-icon';
+            iconSpan.innerHTML = achievement.icon;
+            li.appendChild(iconSpan);
+            // Text
+            const textSpan = document.createElement('span');
+            textSpan.className = 'achievement-text';
+            textSpan.textContent = translations[lang][achievement.key];
+            li.appendChild(textSpan);
             achievementsList.appendChild(li);
-        }
+        });
         container.appendChild(achievementsList);
+
+        // Challenges section: show tasks that unlock special badges when the user
+        // reaches certain order counts. Each challenge uses a custom image icon
+        // (stored in assets) instead of a font icon, and displays a progress bar.
+        const challengesTitle = document.createElement('h3');
+        challengesTitle.textContent = translations[lang].profile_challenges_title;
+        container.appendChild(challengesTitle);
+        const challengesList = document.createElement('ul');
+        challengesList.className = 'challenges-list';
+        // Define challenges: each challenge has a translation key, an order target
+        // and an image path. The images reside in the assets directory and depict
+        // cozy coffee scenes (coffee with cookies, pastries, hearts & swirls).
+        const challenges = [
+            {
+                key: 'challenge_three_orders',
+                target: 3,
+                image: 'assets/challenge1.png'
+            },
+            {
+                key: 'challenge_seven_orders',
+                target: 7,
+                image: 'assets/challenge2.png'
+            },
+            {
+                key: 'challenge_ten_orders',
+                target: 10,
+                image: 'assets/challenge3.png'
+            }
+        ];
+        challenges.forEach(challenge => {
+            const li = document.createElement('li');
+            const completed = ordersCount >= challenge.target;
+            li.className = completed ? 'challenge-unlocked' : 'challenge-locked';
+            // Image for the challenge
+            const img = document.createElement('img');
+            img.src = challenge.image;
+            img.alt = translations[lang][challenge.key];
+            img.className = 'challenge-image';
+            li.appendChild(img);
+            // Text label
+            const textSpan = document.createElement('span');
+            textSpan.className = 'challenge-text';
+            textSpan.textContent = translations[lang][challenge.key];
+            li.appendChild(textSpan);
+            // Progress bar for the challenge
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'challenge-progress-container';
+            const progressBar = document.createElement('div');
+            progressBar.className = 'challenge-progress-bar';
+            let percent2 = ordersCount / challenge.target;
+            if (percent2 > 1) percent2 = 1;
+            // Minimum width to visually represent progress when not started
+            if (percent2 < 0.05) percent2 = 0.05;
+            progressBar.style.width = `${percent2 * 100}%`;
+            progressContainer.appendChild(progressBar);
+            li.appendChild(progressContainer);
+            challengesList.appendChild(li);
+        });
+        container.appendChild(challengesList);
+
+        // Unlockables section: special features unlocked when reaching certain order counts.
+        const unlockablesTitle = document.createElement('h3');
+        unlockablesTitle.textContent = translations[lang].profile_unlockables_title;
+        container.appendChild(unlockablesTitle);
+        const unlockablesList = document.createElement('ul');
+        unlockablesList.className = 'unlockables-list';
+        const unlockables = [
+            {
+                key: 'unlockable_secret_recipe',
+                target: 3,
+                image: 'assets/challenge1.png'
+            },
+            {
+                key: 'unlockable_vip_discount',
+                target: 7,
+                image: 'assets/challenge2.png'
+            },
+            {
+                key: 'unlockable_elite_badge',
+                target: 10,
+                image: 'assets/challenge3.png'
+            }
+        ];
+        unlockables.forEach(unlockable => {
+            const li = document.createElement('li');
+            const unlocked = ordersCount >= unlockable.target;
+            li.className = unlocked ? 'unlockable-unlocked' : 'unlockable-locked';
+            // Image representing the unlockable feature
+            const img = document.createElement('img');
+            img.src = unlockable.image;
+            img.alt = translations[lang][unlockable.key];
+            img.className = 'unlockable-image';
+            li.appendChild(img);
+            // Text label for the unlockable
+            const text = document.createElement('span');
+            text.className = 'unlockable-text';
+            text.textContent = translations[lang][unlockable.key];
+            li.appendChild(text);
+            unlockablesList.appendChild(li);
+        });
+        container.appendChild(unlockablesList);
     }
 }
 
@@ -885,6 +1103,11 @@ function initPage() {
         });
     }
     translatePage();
+    // Highlight the active navigation link.  Determine current page
+    // by comparing the path portion of the href to the current
+    // pathname (basename).  This function adds the `active` class
+    // appropriately.
+    setActiveNav();
     // determine which page we are on
     const pathname = window.location.pathname;
     if (pathname.endsWith('menu.html')) {
